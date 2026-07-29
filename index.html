@@ -555,26 +555,23 @@
   els.forEach(el=>io.observe(el));
 })();
 
-/* ================= STORAGE HELPERS ================= */
-async function getShared(key, fallback){
+/* ================= API ================= */
+// Заменить REPLACE_WITH_YOUR_SUBDOMAIN после деплоя воркера
+const API = 'https://hleb.REPLACE_WITH_YOUR_SUBDOMAIN.workers.dev';
+let ADMIN_PASSWORD_CACHE = '';
+
+async function apiFetch(path, opts){
+  opts = opts || {};
   try{
-    const r = await window.storage.get(key, true);
-    return r ? JSON.parse(r.value) : fallback;
-  }catch(e){ return fallback; }
-}
-async function setShared(key, value){
-  try{ return await window.storage.set(key, JSON.stringify(value), true); }
-  catch(e){ console.error('storage set failed', e); return null; }
-}
-async function getPersonal(key, fallback){
-  try{
-    const r = await window.storage.get(key, false);
-    return r ? JSON.parse(r.value) : fallback;
-  }catch(e){ return fallback; }
-}
-async function setPersonal(key, value){
-  try{ return await window.storage.set(key, JSON.stringify(value), false); }
-  catch(e){ console.error('storage set failed', e); return null; }
+    const r = await fetch(API + path, {
+      headers: Object.assign({'Content-Type':'application/json'}, opts.headers||{}),
+      method: opts.method || 'GET',
+      body: opts.body || undefined
+    });
+    if(!r.ok) throw new Error(r.status);
+    const text = await r.text();
+    return text ? JSON.parse(text) : {};
+  }catch(e){ console.error('API error', path, e); return null; }
 }
 
 const DEFAULT_SETTINGS = {
@@ -594,11 +591,8 @@ const DEFAULT_SETTINGS = {
 let SETTINGS = null;
 
 async function loadSettings(){
-  SETTINGS = await getShared('settings', null);
-  if(!SETTINGS){
-    SETTINGS = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
-    await setShared('settings', SETTINGS);
-  }
+  const data = await apiFetch('/api/settings');
+  SETTINGS = data || JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
   return SETTINGS;
 }
 
@@ -714,12 +708,18 @@ document.getElementById('submitOrder').addEventListener('click', async ()=>{
     price: Math.round(r.finalPrice),
     status: 'new'
   };
-  const orders = await getShared('orders', []);
-  orders.unshift(order);
-  await setShared('orders', orders);
-  msg.className = 'submit-msg ok';
-  msg.textContent = 'Заказ отправлен! Мы свяжемся с вами по указанному контакту.';
-  document.getElementById('s-comment').value = '';
+  const result = await apiFetch('/api/order', {
+    method: 'POST',
+    body: JSON.stringify(order)
+  });
+  if(result && result.ok !== false){
+    msg.className = 'submit-msg ok';
+    msg.textContent = 'Заказ отправлен! Мы свяжемся с вами по указанному контакту.';
+    document.getElementById('s-comment').value = '';
+  } else {
+    msg.className = 'submit-msg err';
+    msg.textContent = 'Ошибка отправки. Попробуйте ещё раз.';
+  }
 });
 
 /* ================= ADMIN ================= */
@@ -754,7 +754,13 @@ document.getElementById('logoutBtn').addEventListener('click', (e)=>{
 
 document.getElementById('adminEnter').addEventListener('click', async ()=>{
   const pass = document.getElementById('adminPass').value;
-  if(pass === SETTINGS.adminPassword){
+  // Проверяем пароль через воркер
+  const check = await apiFetch('/api/orders', {
+    method: 'GET',
+    headers: { 'X-Admin-Password': pass }
+  });
+  if(check !== null){
+    ADMIN_PASSWORD_CACHE = pass;
     adminGate.style.display = 'none';
     adminPanel.style.display = 'block';
     fillAdminSettings();
@@ -815,7 +821,11 @@ document.getElementById('saveSettings').addEventListener('click', async ()=>{
     multiplier: +row.querySelector('.slot-mult').value || 0
   }));
 
-  await setShared('settings', SETTINGS);
+  await apiFetch('/api/settings', {
+    method: 'PUT',
+    headers: { 'X-Admin-Password': ADMIN_PASSWORD_CACHE },
+    body: JSON.stringify(SETTINGS)
+  });
   fillTimeSlots();
   updatePrice();
   const note = document.getElementById('saveNote');
@@ -829,7 +839,10 @@ function fmtTs(ts){
 }
 
 async function renderOrders(){
-  const orders = await getShared('orders', []);
+  const orders = await apiFetch('/api/orders', {
+    method: 'GET',
+    headers: { 'X-Admin-Password': ADMIN_PASSWORD_CACHE }
+  }) || [];
   const list = document.getElementById('ordersList');
   if(orders.length === 0){
     list.innerHTML = '<p class="empty-note">Заказов пока нет.</p>';
@@ -855,15 +868,17 @@ async function renderOrders(){
     btn.addEventListener('click', async (e)=>{
       const card = e.target.closest('.order-card');
       const id = card.dataset.id;
-      const all = await getShared('orders', []);
-      const found = all.find(o=>o.id===id);
-      if(found){ found.status = found.status==='done' ? 'new' : 'done'; }
-      await setShared('orders', all);
+      const currentStatus = card.classList.contains('done') ? 'done' : 'new';
+      const newStatus = currentStatus === 'done' ? 'new' : 'done';
+      await apiFetch('/api/order/' + id, {
+        method: 'PATCH',
+        headers: { 'X-Admin-Password': ADMIN_PASSWORD_CACHE },
+        body: JSON.stringify({ status: newStatus })
+      });
       renderOrders();
     });
   });
 
-  const lastSeen = await getPersonal('lastSeenCount', 0);
   const newCount = orders.filter(o=>o.status==='new').length;
   const badge = document.getElementById('orderBadge');
   if(newCount > 0){
@@ -879,7 +894,10 @@ let knownOrderIds = new Set();
 function startPolling(){
   if(pollTimer) return;
   pollTimer = setInterval(async ()=>{
-    const orders = await getShared('orders', []);
+    const orders = await apiFetch('/api/orders', {
+      method: 'GET',
+      headers: { 'X-Admin-Password': ADMIN_PASSWORD_CACHE }
+    }) || [];
     const ids = orders.map(o=>o.id);
     const isFirstRun = knownOrderIds.size === 0;
     const newOnes = ids.filter(id=>!knownOrderIds.has(id));
