@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ларсен Парковский — Хлебопёк</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --crust: #241812;
+    --crust-deep: #17100c;
+    --crumb: #f3e6cf;
+    --crumb-dim: #cbb99a;
+    --amber: #e2a13a;
+    --amber-soft: rgba(226,161,58,0.16);
+    --rye: #7a4a2b;
+    --wheat: #d9b45c;
+    --whole: #a8804a;
+    --danger: #c0503a;
+    --ok: #6c9a5e;
+    --radius: 14px;
+    --serif: 'Fraunces', serif;
+    --sans: 'Manrope', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--crust);
+    color:var(--crumb);
+    font-family:var(--sans);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--amber); color:var(--crust-deep);}
+
+  a{color:inherit;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:8vh 6vw;
+    overflow:hidden;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(226,161,58,0.15), transparent 60%),
+      linear-gradient(180deg, var(--crust) 0%, var(--crust-deep) 100%);
+  }
+  #dust{position:absolute; inset:0; z-index:0; opacity:0.5;}
+  .hero-inner{position:relative; z-index:1; max-width:900px;}
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:0.78rem;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--amber);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:1.6rem;
+    opacity:0;
+    animation:fadeUp .8s ease forwards .1s;
+  }
+  .eyebrow::before{content:''; width:28px; height:1px; background:var(--amber);}
+  h1.brand{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:clamp(2.6rem, 7vw, 5.6rem);
+    line-height:0.98;
+    margin:0 0 1.4rem;
+    letter-spacing:-0.01em;
+    opacity:0;
+    animation:fadeUp .9s ease forwards .25s;
+  }
+  h1.brand em{
+    font-style:italic;
+    font-weight:300;
+    color:var(--amber);
+  }
+  .hero p.lead{
+    font-size:clamp(1rem, 1.6vw, 1.25rem);
+    color:var(--crumb-dim);
+    max-width:560px;
+    margin:0 0 2.6rem;
+    opacity:0;
+    animation:fadeUp .9s ease forwards .4s;
+  }
+  .hero-cta{
+    display:flex;
+    gap:16px;
+    flex-wrap:wrap;
+    opacity:0;
+    animation:fadeUp .9s ease forwards .55s;
+  }
+  .btn{
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:0.95rem;
+    padding:15px 30px;
+    border-radius:999px;
+    border:1px solid transparent;
+    cursor:pointer;
+    transition:transform .25s ease, background .25s ease, border-color .25s ease;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+  }
+  .btn-primary{background:var(--amber); color:var(--crust-deep);}
+  .btn-primary:hover{transform:translateY(-2px); background:#ecb254;}
+  .btn-ghost{background:transparent; color:var(--crumb); border-color:rgba(243,230,207,0.25);}
+  .btn-ghost:hover{border-color:var(--amber); color:var(--amber);}
+
+  .photo-slot{
+    position:absolute;
+    right:6vw; bottom:6vh;
+    width:min(34vw, 340px);
+    aspect-ratio:4/5;
+    border-radius:var(--radius);
+    border:1px dashed rgba(243,230,207,0.25);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-family:var(--mono);
+    font-size:0.75rem;
+    color:var(--crumb-dim);
+    padding:20px;
+    z-index:1;
+  }
+  @media (max-width:900px){ .photo-slot{display:none;} }
+
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(18px);} to{opacity:1; transform:translateY(0);} }
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:9vh 6vw;}
+  .section-head{max-width:640px; margin:0 0 3rem;}
+  .section-head .eyebrow{margin-bottom:0.8rem;}
+  .section-head h2{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:clamp(1.8rem, 3.4vw, 2.6rem);
+    margin:0 0 0.8rem;
+  }
+  .section-head p{color:var(--crumb-dim); margin:0;}
+
+  .reveal{opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1; transform:translateY(0);}
+
+  /* ---------- ORDER FORM ---------- */
+  .order-wrap{
+    display:grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap:48px;
+    align-items:start;
+  }
+  @media (max-width:880px){ .order-wrap{grid-template-columns:1fr;} }
+
+  .card{
+    background:linear-gradient(180deg, rgba(243,230,207,0.045), rgba(243,230,207,0.02));
+    border:1px solid rgba(243,230,207,0.09);
+    border-radius:var(--radius);
+    padding:28px;
+  }
+
+  .field{margin-bottom:28px;}
+  .field label.title{
+    display:block;
+    font-weight:700;
+    font-size:0.92rem;
+    margin-bottom:12px;
+    color:var(--crumb);
+  }
+  .field .hint{font-size:0.8rem; color:var(--crumb-dim); margin-top:6px;}
+
+  input[type=text], input[type=tel], textarea, select{
+    width:100%;
+    background:var(--crust-deep);
+    border:1px solid rgba(243,230,207,0.15);
+    border-radius:10px;
+    color:var(--crumb);
+    padding:13px 14px;
+    font-family:var(--sans);
+    font-size:0.95rem;
+    outline:none;
+    transition:border-color .2s ease;
+  }
+  input[type=text]:focus, input[type=tel]:focus, textarea:focus, select:focus{border-color:var(--amber);}
+  textarea{resize:vertical; min-height:80px;}
+
+  /* recipe bar (signature element) */
+  .recipe-bar{
+    display:flex;
+    height:34px;
+    border-radius:8px;
+    overflow:hidden;
+    margin-bottom:16px;
+    border:1px solid rgba(0,0,0,0.3);
+  }
+  .recipe-bar div{
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-size:0.72rem; font-weight:600;
+    color:rgba(0,0,0,0.55);
+    transition:width .18s ease;
+    white-space:nowrap;
+    overflow:hidden;
+  }
+  .seg-rye{background:var(--rye); color:var(--crumb);}
+  .seg-wheat{background:var(--wheat);}
+  .seg-whole{background:var(--whole); color:var(--crumb);}
+
+  .slider-row{display:flex; align-items:center; gap:12px; margin-bottom:10px;}
+  .slider-row .dot{width:10px; height:10px; border-radius:50%; flex:none;}
+  .slider-row label{font-size:0.85rem; width:120px; flex:none; color:var(--crumb-dim);}
+  .slider-row input[type=range]{flex:1; accent-color:var(--amber);}
+  .slider-row .val{
+    font-family:var(--mono); font-size:0.85rem; width:44px; text-align:right; flex:none; color:var(--crumb);
+  }
+
+  .radio-group{display:flex; gap:12px; flex-wrap:wrap;}
+  .radio-pill{
+    position:relative;
+  }
+  .radio-pill input{position:absolute; opacity:0; inset:0; cursor:pointer;}
+  .radio-pill span{
+    display:block;
+    padding:11px 18px;
+    border-radius:999px;
+    border:1px solid rgba(243,230,207,0.18);
+    font-size:0.88rem;
+    color:var(--crumb-dim);
+    transition:all .2s ease;
+  }
+  .radio-pill input:checked + span{
+    background:var(--amber-soft);
+    border-color:var(--amber);
+    color:var(--amber);
+    font-weight:700;
+  }
+
+  .price-box{
+    position:sticky;
+    top:24px;
+  }
+  .price-box .amount{
+    font-family:var(--serif);
+    font-size:3rem;
+    font-weight:600;
+    color:var(--amber);
+    line-height:1;
+    margin:6px 0 4px;
+  }
+  .price-box .breakdown{
+    font-family:var(--mono);
+    font-size:0.78rem;
+    color:var(--crumb-dim);
+    margin:2px 0;
+    display:flex;
+    justify-content:space-between;
+  }
+  .price-box hr{border:none; border-top:1px solid rgba(243,230,207,0.12); margin:14px 0;}
+
+  .submit-msg{
+    margin-top:14px;
+    font-size:0.88rem;
+    padding:12px 14px;
+    border-radius:10px;
+    display:none;
+  }
+  .submit-msg.ok{display:block; background:rgba(108,154,94,0.14); color:#9fcf8c;}
+  .submit-msg.err{display:block; background:rgba(192,80,58,0.14); color:#e79482;}
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    padding:5vh 6vw 4vh;
+    border-top:1px solid rgba(243,230,207,0.08);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+    font-size:0.82rem;
+    color:var(--crumb-dim);
+  }
+  footer a.admin-link{
+    font-family:var(--mono);
+    font-size:0.75rem;
+    color:rgba(243,230,207,0.25);
+    text-decoration:none;
+  }
+  footer a.admin-link:hover{color:var(--amber);}
+
+  /* ---------- ADMIN ---------- */
+  #adminScreen{display:none; min-height:100vh; padding:6vh 6vw; background:var(--crust-deep);}
+  .admin-gate{max-width:360px; margin:14vh auto; text-align:center;}
+  .admin-gate h2{font-family:var(--serif); font-weight:600; margin-bottom:1.4rem;}
+  .admin-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:2.4rem; flex-wrap:wrap; gap:14px;}
+  .admin-top h2{font-family:var(--serif); font-weight:600; margin:0;}
+  .badge{
+    background:var(--danger); color:#fff; font-family:var(--mono); font-size:0.75rem;
+    padding:2px 9px; border-radius:999px; margin-left:8px;
+  }
+  .admin-grid{display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:40px;}
+  @media (max-width:800px){.admin-grid{grid-template-columns:1fr;}}
+  .admin-grid h3{font-size:0.95rem; margin:0 0 16px; color:var(--amber);}
+  .mini-row{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px;}
+  .mini-row label{font-size:0.85rem; color:var(--crumb-dim); flex:1;}
+  .mini-row input{width:110px; text-align:right;}
+  .slot-row{display:grid; grid-template-columns:1fr 70px 30px; gap:8px; align-items:center; margin-bottom:10px;}
+  .slot-row input{width:100%;}
+  .icon-btn{background:none; border:none; color:var(--crumb-dim); cursor:pointer; font-size:1.1rem;}
+  .icon-btn:hover{color:var(--danger);}
+  .save-bar{display:flex; gap:12px; align-items:center;}
+  .save-note{font-family:var(--mono); font-size:0.78rem; color:var(--ok); opacity:0; transition:opacity .3s;}
+  .save-note.show{opacity:1;}
+
+  .order-card{
+    border:1px solid rgba(243,230,207,0.1);
+    border-radius:12px;
+    padding:18px 20px;
+    margin-bottom:14px;
+    background:rgba(243,230,207,0.03);
+  }
+  .order-card .row1{display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px;}
+  .order-card .name{font-weight:700;}
+  .order-card .ts{font-family:var(--mono); font-size:0.75rem; color:var(--crumb-dim);}
+  .order-card .details{font-size:0.85rem; color:var(--crumb-dim); margin-top:8px;}
+  .order-card .comment{font-size:0.85rem; margin-top:8px; font-style:italic; color:var(--crumb);}
+  .order-card .price-tag{font-family:var(--mono); color:var(--amber); font-weight:700;}
+  .order-card .status-btn{
+    margin-top:12px; font-size:0.78rem; padding:6px 14px; border-radius:999px;
+    border:1px solid rgba(243,230,207,0.2); background:none; color:var(--crumb-dim); cursor:pointer;
+  }
+  .order-card.done{opacity:0.45;}
+  .order-card.done .status-btn{border-color:var(--ok); color:var(--ok);}
+  .empty-note{color:var(--crumb-dim); font-size:0.9rem;}
+</style>
+</head>
+<body>
+
+<canvas id="dust"></canvas>
+
+<!-- ============ PUBLIC SITE ============ -->
+<div id="siteScreen">
+
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="eyebrow">Хлеб на закваске · выпечка на заказ</div>
+      <h1 class="brand">Ларсен<br>Парковский<br><em>Хлебопёк</em></h1>
+      <p class="lead">Ржаная, пшеничная и цельнозерновая мука в пропорции, которую выбираете вы. На закваске или на дрожжах. Тёплым из печи — или на завтра.</p>
+      <div class="hero-cta">
+        <a href="#order" class="btn btn-primary">Собрать свой хлеб</a>
+        <a href="#about" class="btn btn-ghost">Как это работает</a>
+      </div>
+    </div>
+    <div class="photo-slot">место для фото хлеба<br>(добавим позже)</div>
+  </section>
+
+  <section id="about">
+    <div class="section-head reveal">
+      <div class="eyebrow">Процесс</div>
+      <h2>Три составляющих настоящего хлеба</h2>
+      <p>Мука, закваска и время. Остальное — детали, которые вы настраиваете сами.</p>
+    </div>
+  </section>
+
+  <section id="order">
+    <div class="section-head reveal">
+      <div class="eyebrow">Заказ</div>
+      <h2>Соберите свою буханку</h2>
+      <p>Двигайте ползунки — состав и цена обновляются сразу.</p>
+    </div>
+
+    <div class="order-wrap reveal">
+      <div class="card">
+
+        <div class="field">
+          <label class="title">Состав муки</label>
+          <div class="recipe-bar" id="recipeBar"></div>
+          <div class="slider-row">
+            <span class="dot" style="background:var(--rye)"></span>
+            <label>Ржаная</label>
+            <input type="range" min="0" max="100" value="34" id="s-rye">
+            <span class="val" id="v-rye">34%</span>
+          </div>
+          <div class="slider-row">
+            <span class="dot" style="background:var(--wheat)"></span>
+            <label>Пшеничная</label>
+            <input type="range" min="0" max="100" value="33" id="s-wheat">
+            <span class="val" id="v-wheat">33%</span>
+          </div>
+          <div class="slider-row">
+            <span class="dot" style="background:var(--whole)"></span>
+            <label>Цельнозерновая</label>
+            <input type="range" min="0" max="100" value="33" id="s-whole">
+            <span class="val" id="v-whole">33%</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="title">Объём муки на буханку</label>
+          <input type="range" min="300" max="2000" step="50" value="800" id="s-volume">
+          <div class="hint" id="volumeLabel">800 г</div>
+        </div>
+
+        <div class="field">
+          <label class="title">На чём печём</label>
+          <div class="radio-group">
+            <label class="radio-pill"><input type="radio" name="starter" value="закваска" checked><span>Закваска</span></label>
+            <label class="radio-pill"><input type="radio" name="starter" value="дрожжи"><span>Дрожжи</span></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="title">Свежесть</label>
+          <div class="radio-group">
+            <label class="radio-pill"><input type="radio" name="freshness" value="fresh" checked><span>Свежий, тёплый (10 мин от печи)</span></label>
+            <label class="radio-pill"><input type="radio" name="freshness" value="next"><span>На следующий день</span></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="title">Желаемое время</label>
+          <select id="s-timeslot"></select>
+        </div>
+
+        <div class="field">
+          <label class="title">Имя и контакт</label>
+          <input type="text" id="s-name" placeholder="Как вас зовут" style="margin-bottom:10px;">
+          <input type="tel" id="s-contact" placeholder="Телефон или телеграм">
+        </div>
+
+        <div class="field">
+          <label class="title">Комментарий к заказу</label>
+          <textarea id="s-comment" placeholder="Например: без семечек, покрепче корку и т.д."></textarea>
+        </div>
+
+        <button class="btn btn-primary" id="submitOrder" style="width:100%; justify-content:center;">Отправить заказ</button>
+        <div class="submit-msg" id="submitMsg"></div>
+      </div>
+
+      <div class="card price-box">
+        <div class="hint" style="text-transform:uppercase; letter-spacing:0.08em; font-family:var(--mono); font-size:0.72rem;">Стоимость</div>
+        <div class="amount" id="priceAmount">— ₽</div>
+        <hr>
+        <div class="breakdown"><span>Себестоимость муки</span><span id="b-cost">—</span></div>
+        <div class="breakdown"><span>Наценка</span><span id="b-markup">—</span></div>
+        <div class="breakdown"><span id="b-timeLabel">Время</span><span id="b-time">—</span></div>
+        <div class="breakdown"><span id="b-freshLabel">Свежесть</span><span id="b-fresh">—</span></div>
+        <hr>
+        <p class="hint">Цена ориентировочная — окончательную сумму подтвердит пекарь при обработке заказа.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>© Ларсен Парковский Хлебопёк</span>
+    <a href="#admin" class="admin-link" id="openAdmin">панель пекаря</a>
+  </footer>
+</div>
+
+<!-- ============ ADMIN ============ -->
+<div id="adminScreen">
+
+  <div class="admin-gate" id="adminGate">
+    <h2>Панель пекаря</h2>
+    <input type="text" id="adminPass" placeholder="Пароль" style="margin-bottom:14px;">
+    <button class="btn btn-primary" id="adminEnter" style="width:100%; justify-content:center;">Войти</button>
+    <p class="hint" id="adminError" style="color:var(--danger); display:none;">Неверный пароль</p>
+    <p class="hint" style="margin-top:20px;"><a href="#" id="backToSite">← вернуться на сайт</a></p>
+  </div>
+
+  <div id="adminPanel" style="display:none;">
+    <div class="admin-top">
+      <h2>Заказы<span class="badge" id="orderBadge" style="display:none;">0</span></h2>
+      <div style="display:flex; gap:12px;">
+        <button class="btn btn-ghost" id="notifPermBtn">🔔 включить уведомления</button>
+        <a href="#" class="btn btn-ghost" id="logoutBtn">выйти</a>
+      </div>
+    </div>
+
+    <div class="admin-grid">
+      <div class="card">
+        <h3>Себестоимость муки (₽/кг)</h3>
+        <div class="mini-row"><label>Ржаная</label><input type="text" id="c-rye"></div>
+        <div class="mini-row"><label>Пшеничная</label><input type="text" id="c-wheat"></div>
+        <div class="mini-row"><label>Цельнозерновая</label><input type="text" id="c-whole"></div>
+        <h3 style="margin-top:22px;">Наценка и премии</h3>
+        <div class="mini-row"><label>Наценка, %</label><input type="text" id="c-markup"></div>
+        <div class="mini-row"><label>Надбавка за свежесть, %</label><input type="text" id="c-fresh"></div>
+      </div>
+
+      <div class="card">
+        <h3>Временные слоты и надбавки</h3>
+        <div id="slotList"></div>
+        <button class="btn btn-ghost" id="addSlot" style="margin-top:6px; padding:8px 16px; font-size:0.82rem;">+ добавить слот</button>
+      </div>
+    </div>
+
+    <div class="save-bar" style="margin-bottom:40px;">
+      <button class="btn btn-primary" id="saveSettings">Сохранить настройки</button>
+      <span class="save-note" id="saveNote">сохранено ✓</span>
+    </div>
+
+    <h3 style="color:var(--amber); font-size:0.95rem;">Список заказов</h3>
+    <div id="ordersList"></div>
+  </div>
+</div>
+
+<script>
+/* ---------------- flour dust particles ---------------- */
+(function(){
+  const canvas = document.getElementById('dust');
+  const ctx = canvas.getContext('2d');
+  let w,h,particles=[];
+  function resize(){
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+  }
+  function init(){
+    resize();
+    particles = Array.from({length: 46}, ()=>({
+      x: Math.random()*w, y: Math.random()*h,
+      r: Math.random()*1.6+0.4,
+      s: Math.random()*0.25+0.05,
+      o: Math.random()*0.4+0.1
+    }));
+  }
+  function tick(){
+    ctx.clearRect(0,0,w,h);
+    ctx.fillStyle = 'rgba(226,161,58,';
+    particles.forEach(p=>{
+      p.y -= p.s;
+      p.x += Math.sin(p.y*0.01)*0.15;
+      if(p.y < -10){ p.y = h+10; p.x = Math.random()*w; }
+      ctx.beginPath();
+      ctx.fillStyle = 'rgba(226,161,58,'+p.o+')';
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fill();
+    });
+    requestAnimationFrame(tick);
+  }
+  window.addEventListener('resize', resize);
+  init(); tick();
+})();
+
+/* ---------------- scroll reveal ---------------- */
+(function(){
+  const els = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); });
+  }, {threshold:0.15});
+  els.forEach(el=>io.observe(el));
+})();
+
+/* ================= STORAGE HELPERS ================= */
+async function getShared(key, fallback){
+  try{
+    const r = await window.storage.get(key, true);
+    return r ? JSON.parse(r.value) : fallback;
+  }catch(e){ return fallback; }
+}
+async function setShared(key, value){
+  try{ return await window.storage.set(key, JSON.stringify(value), true); }
+  catch(e){ console.error('storage set failed', e); return null; }
+}
+async function getPersonal(key, fallback){
+  try{
+    const r = await window.storage.get(key, false);
+    return r ? JSON.parse(r.value) : fallback;
+  }catch(e){ return fallback; }
+}
+async function setPersonal(key, value){
+  try{ return await window.storage.set(key, JSON.stringify(value), false); }
+  catch(e){ console.error('storage set failed', e); return null; }
+}
+
+const DEFAULT_SETTINGS = {
+  costPerKg: { rye: 90, wheat: 70, whole: 110 },
+  markupPercent: 40,
+  freshPremiumPercent: 25,
+  timeSlots: [
+    { id:'morning', label:'Утро (7:00–10:00)', multiplier:15 },
+    { id:'day', label:'День (10:00–16:00)', multiplier:0 },
+    { id:'evening', label:'Вечер (16:00–20:00)', multiplier:5 }
+  ],
+  adminPassword: 'larsen2026'
+};
+
+let SETTINGS = null;
+
+async function loadSettings(){
+  SETTINGS = await getShared('settings', null);
+  if(!SETTINGS){
+    SETTINGS = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+    await setShared('settings', SETTINGS);
+  }
+  return SETTINGS;
+}
+
+/* ================= PUBLIC ORDER FORM ================= */
+const ryeS = document.getElementById('s-rye');
+const wheatS = document.getElementById('s-wheat');
+const wholeS = document.getElementById('s-whole');
+const volS = document.getElementById('s-volume');
+const timeSelect = document.getElementById('s-timeslot');
+
+function redistribute(changed){
+  let rye = +ryeS.value, wheat = +wheatS.value, whole = +wholeS.value;
+  const others = ['rye','wheat','whole'].filter(k=>k!==changed);
+  const vals = {rye, wheat, whole};
+  const changedVal = vals[changed];
+  const remaining = 100 - changedVal;
+  const otherSum = others.reduce((s,k)=>s+vals[k],0);
+  if(otherSum <= 0){
+    others.forEach(k=> vals[k] = remaining/2 );
+  } else {
+    others.forEach(k=> vals[k] = Math.max(0, Math.round(vals[k]/otherSum*remaining)) );
+  }
+  // fix rounding drift
+  let sum = vals.rye+vals.wheat+vals.whole;
+  let drift = 100 - sum;
+  vals[others[0]] += drift;
+
+  ryeS.value = vals.rye; wheatS.value = vals.wheat; wholeS.value = vals.whole;
+  ryeS.value = vals.rye; // reassign in case changed key was rye itself keeps original
+  document.getElementById('v-rye').textContent = ryeS.value+'%';
+  document.getElementById('v-wheat').textContent = wheatS.value+'%';
+  document.getElementById('v-whole').textContent = wholeS.value+'%';
+  renderBar();
+  updatePrice();
+}
+
+function renderBar(){
+  const bar = document.getElementById('recipeBar');
+  const rye = +ryeS.value, wheat = +wheatS.value, whole = +wholeS.value;
+  bar.innerHTML = `
+    <div class="seg-rye" style="width:${rye}%">${rye>=10?rye+'%':''}</div>
+    <div class="seg-wheat" style="width:${wheat}%">${wheat>=10?wheat+'%':''}</div>
+    <div class="seg-whole" style="width:${whole}%">${whole>=10?whole+'%':''}</div>
+  `;
+}
+
+ryeS.addEventListener('input', ()=>redistribute('rye'));
+wheatS.addEventListener('input', ()=>redistribute('wheat'));
+wholeS.addEventListener('input', ()=>redistribute('whole'));
+
+volS.addEventListener('input', ()=>{
+  document.getElementById('volumeLabel').textContent = volS.value + ' г';
+  updatePrice();
+});
+
+document.querySelectorAll('input[name=freshness]').forEach(r=>r.addEventListener('change', updatePrice));
+document.addEventListener('change', (e)=>{ if(e.target.id==='s-timeslot') updatePrice(); });
+
+function fillTimeSlots(){
+  timeSelect.innerHTML = SETTINGS.timeSlots.map(s=>`<option value="${s.id}">${s.label}</option>`).join('');
+}
+
+function currentFreshness(){
+  return document.querySelector('input[name=freshness]:checked').value;
+}
+function currentStarter(){
+  return document.querySelector('input[name=starter]:checked').value;
+}
+
+function computePrice(){
+  const rye = +ryeS.value/100, wheat = +wheatS.value/100, whole = +wholeS.value/100;
+  const volumeKg = +volS.value/1000;
+  const cost = (rye*SETTINGS.costPerKg.rye + wheat*SETTINGS.costPerKg.wheat + whole*SETTINGS.costPerKg.whole) * volumeKg;
+  const afterMarkup = cost * (1 + SETTINGS.markupPercent/100);
+  const slot = SETTINGS.timeSlots.find(s=>s.id===timeSelect.value) || SETTINGS.timeSlots[0];
+  const afterTime = afterMarkup * (1 + (slot ? slot.multiplier : 0)/100);
+  const isFresh = currentFreshness()==='fresh';
+  const finalPrice = afterTime * (1 + (isFresh ? SETTINGS.freshPremiumPercent : 0)/100);
+  return { cost, afterMarkup, afterTime, finalPrice, slot, isFresh };
+}
+
+function updatePrice(){
+  if(!SETTINGS) return;
+  const r = computePrice();
+  document.getElementById('priceAmount').textContent = Math.round(r.finalPrice) + ' ₽';
+  document.getElementById('b-cost').textContent = Math.round(r.cost) + ' ₽';
+  document.getElementById('b-markup').textContent = '+' + SETTINGS.markupPercent + '%';
+  document.getElementById('b-timeLabel').textContent = r.slot ? r.slot.label.split(' (')[0] : 'Время';
+  document.getElementById('b-time').textContent = r.slot ? (r.slot.multiplier>0?'+':'') + r.slot.multiplier + '%' : '0%';
+  document.getElementById('b-freshLabel').textContent = r.isFresh ? 'Свежесть (тёплый)' : 'Свежесть';
+  document.getElementById('b-fresh').textContent = r.isFresh ? '+'+SETTINGS.freshPremiumPercent+'%' : '—';
+}
+
+document.getElementById('submitOrder').addEventListener('click', async ()=>{
+  const name = document.getElementById('s-name').value.trim();
+  const contact = document.getElementById('s-contact').value.trim();
+  const msg = document.getElementById('submitMsg');
+  if(!name || !contact){
+    msg.className = 'submit-msg err';
+    msg.textContent = 'Укажите имя и контакт, чтобы мы могли с вами связаться.';
+    return;
+  }
+  const r = computePrice();
+  const order = {
+    id: 'o_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+    ts: Date.now(),
+    name, contact,
+    rye: +ryeS.value, wheat: +wheatS.value, whole: +wholeS.value,
+    volume: +volS.value,
+    starter: currentStarter(),
+    freshness: currentFreshness(),
+    timeSlot: r.slot ? r.slot.label : '',
+    comment: document.getElementById('s-comment').value.trim(),
+    price: Math.round(r.finalPrice),
+    status: 'new'
+  };
+  const orders = await getShared('orders', []);
+  orders.unshift(order);
+  await setShared('orders', orders);
+  msg.className = 'submit-msg ok';
+  msg.textContent = 'Заказ отправлен! Мы свяжемся с вами по указанному контакту.';
+  document.getElementById('s-comment').value = '';
+});
+
+/* ================= ADMIN ================= */
+const siteScreen = document.getElementById('siteScreen');
+const adminScreen = document.getElementById('adminScreen');
+const adminGate = document.getElementById('adminGate');
+const adminPanel = document.getElementById('adminPanel');
+
+function showAdminScreen(){
+  siteScreen.style.display = 'none';
+  adminScreen.style.display = 'block';
+}
+function showSiteScreen(){
+  adminScreen.style.display = 'none';
+  siteScreen.style.display = 'block';
+}
+
+document.getElementById('openAdmin').addEventListener('click', (e)=>{
+  e.preventDefault();
+  showAdminScreen();
+});
+document.getElementById('backToSite').addEventListener('click', (e)=>{
+  e.preventDefault();
+  showSiteScreen();
+});
+document.getElementById('logoutBtn').addEventListener('click', (e)=>{
+  e.preventDefault();
+  adminPanel.style.display = 'none';
+  adminGate.style.display = 'block';
+  showSiteScreen();
+});
+
+document.getElementById('adminEnter').addEventListener('click', async ()=>{
+  const pass = document.getElementById('adminPass').value;
+  if(pass === SETTINGS.adminPassword){
+    adminGate.style.display = 'none';
+    adminPanel.style.display = 'block';
+    fillAdminSettings();
+    renderOrders();
+    startPolling();
+  } else {
+    document.getElementById('adminError').style.display = 'block';
+  }
+});
+
+function fillAdminSettings(){
+  document.getElementById('c-rye').value = SETTINGS.costPerKg.rye;
+  document.getElementById('c-wheat').value = SETTINGS.costPerKg.wheat;
+  document.getElementById('c-whole').value = SETTINGS.costPerKg.whole;
+  document.getElementById('c-markup').value = SETTINGS.markupPercent;
+  document.getElementById('c-fresh').value = SETTINGS.freshPremiumPercent;
+  renderSlotList();
+}
+
+function renderSlotList(){
+  const list = document.getElementById('slotList');
+  list.innerHTML = SETTINGS.timeSlots.map((s,i)=>`
+    <div class="slot-row" data-idx="${i}">
+      <input type="text" class="slot-label" value="${s.label}">
+      <input type="text" class="slot-mult" value="${s.multiplier}">
+      <button class="icon-btn slot-del" title="удалить">✕</button>
+    </div>
+  `).join('');
+  list.querySelectorAll('.slot-del').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      const idx = +e.target.closest('.slot-row').dataset.idx;
+      SETTINGS.timeSlots.splice(idx,1);
+      renderSlotList();
+    });
+  });
+}
+
+document.getElementById('addSlot').addEventListener('click', ()=>{
+  SETTINGS.timeSlots.push({id:'slot_'+Date.now(), label:'Новый слот', multiplier:0});
+  renderSlotList();
+});
+
+document.getElementById('saveSettings').addEventListener('click', async ()=>{
+  SETTINGS.costPerKg.rye = +document.getElementById('c-rye').value || 0;
+  SETTINGS.costPerKg.wheat = +document.getElementById('c-wheat').value || 0;
+  SETTINGS.costPerKg.whole = +document.getElementById('c-whole').value || 0;
+  SETTINGS.markupPercent = +document.getElementById('c-markup').value || 0;
+  SETTINGS.freshPremiumPercent = +document.getElementById('c-fresh').value || 0;
+
+  const rows = document.querySelectorAll('#slotList .slot-row');
+  SETTINGS.timeSlots = Array.from(rows).map(row=>({
+    id: 'slot_' + Math.random().toString(36).slice(2,8),
+    label: row.querySelector('.slot-label').value,
+    multiplier: +row.querySelector('.slot-mult').value || 0
+  }));
+
+  await setShared('settings', SETTINGS);
+  fillTimeSlots();
+  updatePrice();
+  const note = document.getElementById('saveNote');
+  note.classList.add('show');
+  setTimeout(()=>note.classList.remove('show'), 2000);
+});
+
+function fmtTs(ts){
+  const d = new Date(ts);
+  return d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'});
+}
+
+async function renderOrders(){
+  const orders = await getShared('orders', []);
+  const list = document.getElementById('ordersList');
+  if(orders.length === 0){
+    list.innerHTML = '<p class="empty-note">Заказов пока нет.</p>';
+    document.getElementById('orderBadge').style.display = 'none';
+    return;
+  }
+  list.innerHTML = orders.map(o=>`
+    <div class="order-card ${o.status==='done'?'done':''}" data-id="${o.id}">
+      <div class="row1">
+        <span class="name">${o.name} · ${o.contact}</span>
+        <span class="ts">${fmtTs(o.ts)}</span>
+      </div>
+      <div class="details">
+        Ржаная ${o.rye}% / Пшеничная ${o.wheat}% / Цельнозерновая ${o.whole}% · ${o.volume} г муки<br>
+        ${o.starter} · ${o.freshness==='fresh' ? 'свежий из печи' : 'на след. день'} · ${o.timeSlot}
+      </div>
+      ${o.comment ? `<div class="comment">«${o.comment}»</div>` : ''}
+      <div style="margin-top:10px;" class="price-tag">${o.price} ₽</div>
+      <button class="status-btn">${o.status==='done' ? '✓ выполнен' : 'отметить выполненным'}</button>
+    </div>
+  `).join('');
+  list.querySelectorAll('.status-btn').forEach(btn=>{
+    btn.addEventListener('click', async (e)=>{
+      const card = e.target.closest('.order-card');
+      const id = card.dataset.id;
+      const all = await getShared('orders', []);
+      const found = all.find(o=>o.id===id);
+      if(found){ found.status = found.status==='done' ? 'new' : 'done'; }
+      await setShared('orders', all);
+      renderOrders();
+    });
+  });
+
+  const lastSeen = await getPersonal('lastSeenCount', 0);
+  const newCount = orders.filter(o=>o.status==='new').length;
+  const badge = document.getElementById('orderBadge');
+  if(newCount > 0){
+    badge.style.display = 'inline-block';
+    badge.textContent = newCount;
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+let pollTimer = null;
+let knownOrderIds = new Set();
+function startPolling(){
+  if(pollTimer) return;
+  pollTimer = setInterval(async ()=>{
+    const orders = await getShared('orders', []);
+    const ids = orders.map(o=>o.id);
+    const isFirstRun = knownOrderIds.size === 0;
+    const newOnes = ids.filter(id=>!knownOrderIds.has(id));
+    ids.forEach(id=>knownOrderIds.add(id));
+    if(!isFirstRun && newOnes.length > 0){
+      beep();
+      if(Notification && Notification.permission === 'granted'){
+        new Notification('Новый заказ хлеба', { body: 'Поступил новый заказ — открой панель пекаря.' });
+      }
+      renderOrders();
+    }
+  }, 6000);
+}
+
+function beep(){
+  try{
+    const ctxA = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctxA.createOscillator();
+    const g = ctxA.createGain();
+    o.type = 'sine'; o.frequency.value = 720;
+    g.gain.value = 0.08;
+    o.connect(g); g.connect(ctxA.destination);
+    o.start();
+    setTimeout(()=>{ o.stop(); ctxA.close(); }, 260);
+  }catch(e){}
+}
+
+document.getElementById('notifPermBtn').addEventListener('click', ()=>{
+  if('Notification' in window){
+    Notification.requestPermission();
+  }
+});
+
+/* ================= INIT ================= */
+(async function init(){
+  await loadSettings();
+  fillTimeSlots();
+  renderBar();
+  updatePrice();
+  if(location.hash === '#admin') showAdminScreen();
+})();
+</script>
+</body>
+</html>
