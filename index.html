@@ -51,7 +51,7 @@
       radial-gradient(ellipse 80% 60% at 50% -10%, rgba(226,161,58,0.15), transparent 60%),
       linear-gradient(180deg, var(--crust) 0%, var(--crust-deep) 100%);
   }
-  #dust{position:absolute; inset:0; z-index:0; opacity:0.5;}
+  #dust{position:fixed; inset:0; z-index:0; opacity:0.5; pointer-events:none;}
   .hero-inner{position:relative; z-index:1; max-width:900px;}
   .eyebrow{
     font-family:var(--mono);
@@ -296,7 +296,7 @@
   footer a.admin-link:hover{color:var(--amber);}
 
   /* ---------- ADMIN ---------- */
-  #adminScreen{display:none; min-height:100vh; padding:6vh 6vw; background:var(--crust-deep);}
+  #adminScreen{display:none; min-height:100vh; padding:6vh 6vw; background:var(--crust-deep); position:relative; z-index:1;}
   .admin-gate{max-width:360px; margin:14vh auto; text-align:center;}
   .admin-gate h2{font-family:var(--serif); font-weight:600; margin-bottom:1.4rem;}
   .admin-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:2.4rem; flex-wrap:wrap; gap:14px;}
@@ -346,7 +346,7 @@
 <canvas id="dust"></canvas>
 
 <!-- ============ PUBLIC SITE ============ -->
-<div id="siteScreen">
+<div id="siteScreen" style="position:relative; z-index:1;">
 
   <section class="hero">
     <div class="hero-inner">
