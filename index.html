@@ -447,13 +447,7 @@
       <div class="card price-box">
         <div class="hint" style="text-transform:uppercase; letter-spacing:0.08em; font-family:var(--mono); font-size:0.72rem;">Стоимость</div>
         <div class="amount" id="priceAmount">— ₽</div>
-        <hr>
-        <div class="breakdown"><span>Себестоимость муки</span><span id="b-cost">—</span></div>
-        <div class="breakdown"><span>Наценка</span><span id="b-markup">—</span></div>
-        <div class="breakdown"><span id="b-timeLabel">Время</span><span id="b-time">—</span></div>
-        <div class="breakdown"><span id="b-freshLabel">Свежесть</span><span id="b-fresh">—</span></div>
-        <hr>
-        <p class="hint">Цена ориентировочная — окончательную сумму подтвердит пекарь при обработке заказа.</p>
+        <p class="hint" style="margin-top:14px;">Цена ориентировочная — окончательную сумму подтвердит пекарь при обработке заказа.</p>
       </div>
     </div>
   </section>
@@ -490,6 +484,9 @@
         <div class="mini-row"><label>Ржаная</label><input type="text" id="c-rye"></div>
         <div class="mini-row"><label>Пшеничная</label><input type="text" id="c-wheat"></div>
         <div class="mini-row"><label>Цельнозерновая</label><input type="text" id="c-whole"></div>
+        <h3 style="margin-top:22px;">Прочие расходы</h3>
+        <div class="mini-row"><label>Соль/сахар/масло (₽/буханка)</label><input type="text" id="c-fixed"></div>
+        <div class="mini-row"><label>Дрожжи (₽/кг муки)</label><input type="text" id="c-yeast"></div>
         <h3 style="margin-top:22px;">Наценка и премии</h3>
         <div class="mini-row"><label>Наценка, %</label><input type="text" id="c-markup"></div>
         <div class="mini-row"><label>Надбавка за свежесть, %</label><input type="text" id="c-fresh"></div>
@@ -581,11 +578,13 @@ async function setPersonal(key, value){
 }
 
 const DEFAULT_SETTINGS = {
-  costPerKg: { rye: 90, wheat: 70, whole: 110 },
-  markupPercent: 40,
+  costPerKg: { rye: 60, wheat: 60, whole: 60 },
+  fixedCost: 40,
+  yeastCostPerKg: 60,
+  markupPercent: 119,
   freshPremiumPercent: 25,
   timeSlots: [
-    { id:'morning', label:'Утро (7:00–10:00)', multiplier:15 },
+    { id:'morning', label:'Утро (7:00–10:00)', multiplier:20 },
     { id:'day', label:'День (10:00–16:00)', multiplier:0 },
     { id:'evening', label:'Вечер (16:00–20:00)', multiplier:5 }
   ],
@@ -656,6 +655,7 @@ volS.addEventListener('input', ()=>{
 });
 
 document.querySelectorAll('input[name=freshness]').forEach(r=>r.addEventListener('change', updatePrice));
+document.querySelectorAll('input[name=starter]').forEach(r=>r.addEventListener('change', updatePrice));
 document.addEventListener('change', (e)=>{ if(e.target.id==='s-timeslot') updatePrice(); });
 
 function fillTimeSlots(){
@@ -672,25 +672,23 @@ function currentStarter(){
 function computePrice(){
   const rye = +ryeS.value/100, wheat = +wheatS.value/100, whole = +wholeS.value/100;
   const volumeKg = +volS.value/1000;
-  const cost = (rye*SETTINGS.costPerKg.rye + wheat*SETTINGS.costPerKg.wheat + whole*SETTINGS.costPerKg.whole) * volumeKg;
-  const afterMarkup = cost * (1 + SETTINGS.markupPercent/100);
+  const flourCost = (rye*SETTINGS.costPerKg.rye + wheat*SETTINGS.costPerKg.wheat + whole*SETTINGS.costPerKg.whole) * volumeKg;
+  const fixedCost = SETTINGS.fixedCost || 40;
+  const isYeast = currentStarter() === 'дрожжи';
+  const yeastCost = isYeast ? (SETTINGS.yeastCostPerKg || 60) * volumeKg : 0;
+  const totalCost = flourCost + fixedCost + yeastCost;
+  const afterMarkup = totalCost * (1 + SETTINGS.markupPercent/100);
   const slot = SETTINGS.timeSlots.find(s=>s.id===timeSelect.value) || SETTINGS.timeSlots[0];
   const afterTime = afterMarkup * (1 + (slot ? slot.multiplier : 0)/100);
   const isFresh = currentFreshness()==='fresh';
   const finalPrice = afterTime * (1 + (isFresh ? SETTINGS.freshPremiumPercent : 0)/100);
-  return { cost, afterMarkup, afterTime, finalPrice, slot, isFresh };
+  return { totalCost, finalPrice, slot, isFresh };
 }
 
 function updatePrice(){
   if(!SETTINGS) return;
   const r = computePrice();
   document.getElementById('priceAmount').textContent = Math.round(r.finalPrice) + ' ₽';
-  document.getElementById('b-cost').textContent = Math.round(r.cost) + ' ₽';
-  document.getElementById('b-markup').textContent = '+' + SETTINGS.markupPercent + '%';
-  document.getElementById('b-timeLabel').textContent = r.slot ? r.slot.label.split(' (')[0] : 'Время';
-  document.getElementById('b-time').textContent = r.slot ? (r.slot.multiplier>0?'+':'') + r.slot.multiplier + '%' : '0%';
-  document.getElementById('b-freshLabel').textContent = r.isFresh ? 'Свежесть (тёплый)' : 'Свежесть';
-  document.getElementById('b-fresh').textContent = r.isFresh ? '+'+SETTINGS.freshPremiumPercent+'%' : '—';
 }
 
 document.getElementById('submitOrder').addEventListener('click', async ()=>{
@@ -771,6 +769,8 @@ function fillAdminSettings(){
   document.getElementById('c-rye').value = SETTINGS.costPerKg.rye;
   document.getElementById('c-wheat').value = SETTINGS.costPerKg.wheat;
   document.getElementById('c-whole').value = SETTINGS.costPerKg.whole;
+  document.getElementById('c-fixed').value = SETTINGS.fixedCost || 40;
+  document.getElementById('c-yeast').value = SETTINGS.yeastCostPerKg || 60;
   document.getElementById('c-markup').value = SETTINGS.markupPercent;
   document.getElementById('c-fresh').value = SETTINGS.freshPremiumPercent;
   renderSlotList();
@@ -803,6 +803,8 @@ document.getElementById('saveSettings').addEventListener('click', async ()=>{
   SETTINGS.costPerKg.rye = +document.getElementById('c-rye').value || 0;
   SETTINGS.costPerKg.wheat = +document.getElementById('c-wheat').value || 0;
   SETTINGS.costPerKg.whole = +document.getElementById('c-whole').value || 0;
+  SETTINGS.fixedCost = +document.getElementById('c-fixed').value || 0;
+  SETTINGS.yeastCostPerKg = +document.getElementById('c-yeast').value || 0;
   SETTINGS.markupPercent = +document.getElementById('c-markup').value || 0;
   SETTINGS.freshPremiumPercent = +document.getElementById('c-fresh').value || 0;
 
